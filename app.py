@@ -9,6 +9,7 @@ from datetime import date
 
 
 app = Dash(__name__,external_stylesheets=[dbc.themes.BOOTSTRAP,dbc.icons.BOOTSTRAP,dbc.icons.FONT_AWESOME],assets_folder='assets')
+server = app.server
 
 def kpi_card(name,value,text_color):
     return dbc.Col(
