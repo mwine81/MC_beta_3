@@ -15,7 +15,7 @@ def kpi_card(name,value,text_color):
     return dbc.Col(
     dbc.Card(
     dbc.CardBody([
-        html.H1(value,className="fw-bold text-center",style={'color':text_color}),
+        html.H3(value,className="fw-bold text-center",style={'color':text_color}),
         html.P(name,className="text-muted text-center"),
         ]
     ),className='rounded-4 shadow-lg border-0 mb-5'
@@ -93,11 +93,11 @@ app.layout = html.Div([
             dbc.Col(dbc.Row(id='kpi-row',className="mt-4"))
         ),
         dbc.Row([
-            html.Div(controls,className='col-6'),
-            html.Div(FIG1,className='col-6')
+            html.Div(controls,className='col-4'),
+            html.Div(FIG2,className='col-8')
         ]),
         dbc.Row([
-            dbc.Col(FIG2),
+            dbc.Col(FIG1),
             dbc.Col(FIG3),
         ]),
     ],
