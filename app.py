@@ -26,10 +26,10 @@ navi = html.Div(
         html.Div([
             html.A(
                 html.Img(src=app.get_asset_url
-                ('img.png'),alt='logo')
+                ('img.png'),alt='logo',className='ps-3')
                 ,href='index.html',className='navbar-brand'),
             ]
-            ,className='container')
+            )
         ,className="navbar", style={'background-color': MCCPDC_SECONDARY}
 )
 
@@ -74,7 +74,7 @@ controls = dbc.Card(
             group_select('Fig 1 Rank By', id='fig-drug-class-how',
                            value='diff',
                            options={'per_rx': 'Average Per Rx', 'diff': 'Total Savings'}),
-            group_select('Fig 2 Top N Drugs',id='fig-per-drug-n', options=[x for x in range(20)],
+            group_select('Fig 2 Top N Drugs',id='fig-per-drug-n', options=[x for x in range(10,21)],
                        value=10,),
             group_select('Fig 2 Rank By',id='fig-per-drug-how',
                        value='diff',
@@ -94,11 +94,11 @@ app.layout = html.Div([
         ),
         dbc.Row([
             html.Div(controls,className='col-4'),
-            html.Div(FIG2,className='col-8')
+            html.Div(FIG3,className='col-8')
         ]),
         dbc.Row([
-            dbc.Col(FIG1),
-            dbc.Col(FIG3),
+            dbc.Col(FIG2,className='col-6'),
+            dbc.Col(FIG1,className='col-6'),
         ]),
     ],
     fluid=True),
