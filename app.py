@@ -43,10 +43,10 @@ footer = html.Footer(
 def group_select(name,**kwargs):
     return dbc.Row([
         dbc.Col(
-            html.P(f'{name}',className="text-bold mb-0"),width=5
+            html.P(f'{name}',className="text-bold mb-0"),width=4
         ),
         dbc.Col(
-    dcc.Dropdown(**kwargs),width=7
+    dcc.Dropdown(**kwargs),width=8
         )]
     ,className='row mb-2', align='center', justify='center')
 
@@ -74,7 +74,7 @@ controls = dbc.Card(
             group_select('Date Sets', options=get_files(), multi=True, id='data-set'),
             group_select('Drug Class', id='drug-class-group', multi=True),
             group_select('Product', id='product-group', multi=True),
-            group_select('Affiliated Dispensing', options={'All': 'All', True: 'Affiliated', False: 'Non-Affiliated'},
+            group_select('Affiliated', options={'All': 'All', True: 'Affiliated', False: 'Non-Affiliated'},
                          value='All', id='affiliated-group', clearable=False),
             group_select('Specialty', options={'All': 'All', True: 'Specialty', False: 'Non-Specialty'}, value='All',
                          id='specialty-group', clearable=False),
