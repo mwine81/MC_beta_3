@@ -84,7 +84,7 @@ def top_saving_drugs(data,n_drugs,how):
 FIG2 = create_fig('graph2')
 
 #FIG3 Calc
-def fig_monthly_spend(data,nadac_fee):
+def fig_monthly_spend(data,nadac_fee=10):
 
     data = (
         data
@@ -127,25 +127,41 @@ def scatter_fig(data):
     data = (
         data
         .group_by(c.generic_name, c.drug_class)
-        .agg(c.total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'),
-             (c.total.mean() - c.mc_total.mean()).alias('diff').alias('avg_diff'))
+        .agg(c.total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'),c.rx_ct.sum())
+        .with_columns((c.diff / c.rx_ct).alias('avg_diff'))
         .filter(c.diff > 0)
-        .filter(c.avg_diff > 100)
+        .filter(c.avg_diff > 0)
+        .sql("""select *,
+        case when avg_diff < 10 then 1
+        when avg_diff <50 then 1
+        when avg_diff <100 then 2
+        when avg_diff <500 then 4
+        when avg_diff <1000 then 8
+        when avg_diff <5000 then 16
+        else 32 end as size_normalized
+        from self""")
         .collect()
     )
+    # avg_diff_min = data.select(c.avg_diff.min()).item()
+    # avg_diff_max = data.select(c.avg_diff.max()).item()
+    # data = data.with_columns(
+    #     ((c.avg_diff - avg_diff_min) / (avg_diff_max - avg_diff_min) * 100).alias('size_normalized')
+    # )
 
-    fig = px.scatter(data, y='total', x='diff', size='avg_diff', color='drug_class', log_x=True, log_y=True,
+
+    fig = px.scatter(data, y='total', x='diff', size='size_normalized', color='drug_class', log_x=True, log_y=True,
                      hover_data={
                          'generic_name': True,  # Show generic_name in hover data
                          'avg_diff': ':$,.2f',  # Format avg_diff as .2f (two decimal places)
                          'diff': True,  # Keep other fields unchanged
                          'total': True},
-                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class']
+                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class','rx_ct']
 
                      )
     template = (
         "<b>Drug Name:</b> %{customdata[3]}<br>"
-        "<b>Drug Class:</b> %{customdata[4]}<br>"  # Rename 'generic_name'
+        "<b>Drug Class:</b> %{customdata[4]}<br>"
+        "<b>Rx Count:</b> %{customdata[5]:,.0f}<br>"# Rename 'generic_name'
         "<b>Average Difference Per Rx:</b> %{customdata[0]:$,.2f}<br>"  # Rename and format 'avg_diff'
         "<b>Total Charge Difference:</b> %{customdata[1]:$,.0f}<br>"  # Rename and format 'diff'
         "<b>Total Charge:</b> %{customdata[2]:$,.0f}<br>"  # Rename and format 'total'

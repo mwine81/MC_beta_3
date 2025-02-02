@@ -36,24 +36,34 @@ navi = html.Div(
 footer = html.Footer(
             html.A(
                 html.Img(src=app.get_asset_url
-                ('3axisbrand.png'),alt='logo', height='30px')
+                ('img_1.png'),alt='logo', height='100px')
                 ,href='index.html',className='px-4'),
            className='mb-4')
 
 def group_select(name,**kwargs):
-    return html.Div([
-    html.P(f'{name}',className="text-bold mb-2"),
-    dcc.Dropdown(**kwargs)
-    ],className="col-6")
+    return dbc.Row([
+        dbc.Col(
+            html.P(f'{name}',className="text-bold mb-0"),width=5
+        ),
+        dbc.Col(
+    dcc.Dropdown(**kwargs),width=7
+        )]
+    ,className='row mb-2', align='center', justify='center')
 
 date_selector = html.Div([
-    html.P('Select Date Range',className="text-bold mb-2"),
+    dbc.Col(
+    html.P('Select Date Range',className="text-bold mb-0"),width=4
+    ),
+    dbc.Col(
     dcc.DatePickerRange(
                 id='date-picker',
                 min_date_allowed=date(2023, 1, 1),
                 max_date_allowed=date(2024, 12, 31),
                 end_date=date(2024, 12, 31),
-                start_date=date(2023, 1, 1),)])
+                start_date=date(2023, 1, 1),),width=8
+    )
+    ],className='row align-items-center mb-2')
+
 
 #controls
 controls = dbc.Card(
@@ -82,8 +92,8 @@ controls = dbc.Card(
             group_select('Fig 3 NADAC Fee',id='fig-over-time-fee', options=[x for x in range(20)],
                        value=10,)
         ]),
-    ],className='rounded-4 shadow-lg border-0 mb-5 h-100')
-,className='border-0')
+    ],className='rounded-4 shadow-lg border-0 mb-5')
+    ,className='border-0')
 
 
 app.layout = html.Div([
@@ -95,7 +105,7 @@ app.layout = html.Div([
         dbc.Row([
             html.Div(controls,className='col-4'),
             html.Div(FIG4,className='col-8')
-        ]),
+        ],align='center'),
         dbc.Row([
             #dbc.Col(FIG2,className='col-6'),
             dbc.Col(FIG1,className='col-6'),
@@ -262,6 +272,7 @@ def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_
 
     fig = dcc.Graph(figure=scatter_fig(data))
     return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
