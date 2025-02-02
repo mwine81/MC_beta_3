@@ -103,8 +103,8 @@ app.layout = html.Div([
             dbc.Col(dbc.Row(id='kpi-row',className="mt-4"))
         ),
         dbc.Row([
-            html.Div(controls,className='col-4'),
-            html.Div(FIG4,className='col-8')
+            html.Div(controls,className='col-5'),
+            html.Div(FIG4,className='col-7')
         ],align='center'),
         dbc.Row([
             #dbc.Col(FIG2,className='col-6'),
