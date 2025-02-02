@@ -123,4 +123,49 @@ def fig_monthly_spend(data,nadac_fee):
 FIG3 = create_fig('graph3')
 
 
+def scatter_fig(data):
+    data = (
+        data
+        .group_by(c.generic_name, c.drug_class)
+        .agg(c.total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'),
+             (c.total.mean() - c.mc_total.mean()).alias('diff').alias('avg_diff'))
+        .filter(c.diff > 0)
+        .filter(c.avg_diff > 100)
+        .collect()
+    )
+
+    fig = px.scatter(data, y='total', x='diff', size='avg_diff', color='drug_class', log_x=True, log_y=True,
+                     hover_data={
+                         'generic_name': True,  # Show generic_name in hover data
+                         'avg_diff': ':$,.2f',  # Format avg_diff as .2f (two decimal places)
+                         'diff': True,  # Keep other fields unchanged
+                         'total': True},
+                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class']
+
+                     )
+    template = (
+        "<b>Drug Name:</b> %{customdata[3]}<br>"
+        "<b>Drug Class:</b> %{customdata[4]}<br>"  # Rename 'generic_name'
+        "<b>Average Difference Per Rx:</b> %{customdata[0]:$,.2f}<br>"  # Rename and format 'avg_diff'
+        "<b>Total Charge Difference:</b> %{customdata[1]:$,.0f}<br>"  # Rename and format 'diff'
+        "<b>Total Charge:</b> %{customdata[2]:$,.0f}<br>"  # Rename and format 'total'
+        "<extra></extra>"  # Hides the default trace info
+    )
+
+    fig.update_layout(
+        xaxis=dict(tickformat='$.2s'),
+        yaxis=dict(tickformat='$.2s'),
+        plot_bgcolor="ghostwhite",  # Set plot background color
+        paper_bgcolor="white",  # Set outer paper background color
+        xaxis_title="<b>MCCPDC Estimated Savings<b>",
+        yaxis_title="<b>Total Charge<b>",
+        legend_title = '<b>Drug Class<b>'
+
+    )
+    fig.update_traces(hovertemplate=template)
+    return fig
+
+FIG4 = create_fig('graph4')
+
+
 

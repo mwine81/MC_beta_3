@@ -82,7 +82,7 @@ controls = dbc.Card(
             group_select('Fig 3 NADAC Fee',id='fig-over-time-fee', options=[x for x in range(20)],
                        value=10,)
         ]),
-    ],className='rounded-4 shadow-lg border-0 mb-5')
+    ],className='rounded-4 shadow-lg border-0 mb-5 h-100')
 ,className='border-0')
 
 
@@ -94,11 +94,12 @@ app.layout = html.Div([
         ),
         dbc.Row([
             html.Div(controls,className='col-4'),
-            html.Div(FIG3,className='col-8')
+            html.Div(FIG4,className='col-8')
         ]),
         dbc.Row([
-            dbc.Col(FIG2,className='col-6'),
+            #dbc.Col(FIG2,className='col-6'),
             dbc.Col(FIG1,className='col-6'),
+            dbc.Col(FIG3,className='col-6'),
         ]),
     ],
     fluid=True),
@@ -176,26 +177,26 @@ def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_
     return fig
 
 #GRAPH2 CALLBACK
-@app.callback(
-    Output('graph2','children'),
-    Input('data-set', 'value'),
-    Input('affiliated-group', 'value'),
-    Input('specialty-group', 'value'),
-    Input('ftc-group', 'value'),
-    Input('drug-class-group', 'value'),
-    Input('product-group', 'value'),
-    Input('date-picker', 'start_date'),
-    Input('date-picker', 'end_date'),
-    Input('fig-per-drug-n','value'),
-    Input('fig-per-drug-how','value'),
-)
-def update_graph2(data_set_list,affiliated_group,specialty_group,ftc_group, drug_class_list,product_list,date_start,date_end,n_drugs,how):
-    data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
-                       drug_class_list=drug_class_list,product_list=product_list, date_start=date_start, date_end=date_end)
-
-    fig = dcc.Graph(figure=top_saving_drugs(data, n_drugs,how))
-
-    return fig
+# @app.callback(
+#     Output('graph2','children'),
+#     Input('data-set', 'value'),
+#     Input('affiliated-group', 'value'),
+#     Input('specialty-group', 'value'),
+#     Input('ftc-group', 'value'),
+#     Input('drug-class-group', 'value'),
+#     Input('product-group', 'value'),
+#     Input('date-picker', 'start_date'),
+#     Input('date-picker', 'end_date'),
+#     Input('fig-per-drug-n','value'),
+#     Input('fig-per-drug-how','value'),
+# )
+# def update_graph2(data_set_list,affiliated_group,specialty_group,ftc_group, drug_class_list,product_list,date_start,date_end,n_drugs,how):
+#     data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
+#                        drug_class_list=drug_class_list,product_list=product_list, date_start=date_start, date_end=date_end)
+#
+#     fig = dcc.Graph(figure=top_saving_drugs(data, n_drugs,how))
+#
+#     return fig
 
 #FIG3 CALLBACK
 @app.callback(
@@ -217,6 +218,8 @@ def update_graph3(data_set_list,affiliated_group,specialty_group,ftc_group, drug
     fig = dcc.Graph(figure=fig_monthly_spend(data,fee))
 
     return fig
+
+
 
 @app.callback(
     Output('kpi-row','children'),
@@ -241,6 +244,24 @@ def update_kpis(data_set_list,affiliated_group,specialty_group,ftc_group, drug_c
         kpi_card('Estimated Savings Per Rx', f'{"${:,.2f}".format(data_dict.get("per_rx")[0])}',MCCPDC_ACCENT),
     ]
     return KPIS
+
+@app.callback(
+    Output('graph4','children'),
+    Input('data-set', 'value'),
+    Input('affiliated-group', 'value'),
+    Input('specialty-group', 'value'),
+    Input('ftc-group', 'value'),
+    Input('drug-class-group', 'value'),
+    Input('product-group', 'value'),
+    Input('date-picker', 'start_date'),
+    Input('date-picker', 'end_date'),
+)
+def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,product_list,date_start,date_end):
+    data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
+                       drug_class_list=drug_class_list,product_list=product_list, date_start=date_start, date_end=date_end)
+
+    fig = dcc.Graph(figure=scatter_fig(data))
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
