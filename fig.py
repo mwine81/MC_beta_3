@@ -207,7 +207,8 @@ def bar_total_pct_savings(data):
                      'rx_ct': True,
                      'avg_diff': ':$,.2f',  # Format avg_diff as .2f (two decimal places)
                  },
-                 custom_data=['avg_diff', 'diff', 'total', 'drug_class', 'rx_ct']
+                 custom_data=['avg_diff', 'diff', 'total', 'drug_class', 'rx_ct'],
+                 height=400,
                  )
     template = (
         "<b>Drug Class:</b> %{customdata[3]}<br>"
@@ -259,7 +260,8 @@ def avg_charge_per_rx(data):
                      'drug_class': True,
                      'value': True,  # Keep other fields unchanged
                  },
-                 custom_data=['drug_class', 'value']
+                 custom_data=['drug_class', 'value'],
+                 height=400,
                  )
     template = (
         "<b>Drug Class:</b> %{customdata[0]}<br>"
