@@ -41,18 +41,18 @@ footer = html.Footer(
            className='mb-4')
 
 def group_select(name,**kwargs):
-    return dbc.Row([
+    return html.Div([
         dbc.Col(
-            html.P(f'{name}',className="text-bold mb-0"),width=4
+            html.P(f'{name}',className="mb-0"),style=({'font-size':'12px'}),width=4
         ),
         dbc.Col(
-    dcc.Dropdown(**kwargs),width=8
-        )]
-    ,className='row mb-2', align='center', justify='center')
+    dcc.Dropdown(**kwargs,style={'font-size':'12px'}),width=8
+        )
+    ],className='hstack gap-1 mb-1')
 
 date_selector = html.Div([
     dbc.Col(
-    html.P('Select Date Range',className="text-bold mb-0"),width=4
+    html.P('Date Range',className="text-bold mb-0",style={'font-size':'12px'}),width=4
     ),
     dbc.Col(
     dcc.DatePickerRange(
@@ -60,9 +60,9 @@ date_selector = html.Div([
                 min_date_allowed=date(2023, 1, 1),
                 max_date_allowed=date(2024, 12, 31),
                 end_date=date(2024, 12, 31),
-                start_date=date(2023, 1, 1),),width=8
-    )
-    ],className='row align-items-center mb-2')
+                start_date=date(2023, 1, 1),),width=8,style={'font-size':'12px'}
+    )],
+    className='hstack gap-1 mb-1')
 
 
 #controls
@@ -103,8 +103,8 @@ app.layout = html.Div([
             dbc.Col(dbc.Row(id='kpi-row',className="mt-4"))
         ),
         dbc.Row([
-            html.Div(controls,className='col-5'),
-            html.Div(FIG4,className='col-7')
+            html.Div(controls,className='col-4'),
+            html.Div(FIG4,className='col-8')
         ],align='center'),
         dbc.Row([
             #dbc.Col(FIG2,className='col-6'),
