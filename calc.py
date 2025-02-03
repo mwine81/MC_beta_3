@@ -36,6 +36,7 @@ def dict_for_kpis(data: pl.LazyFrame) -> dict:
     .select(cs.contains('total', 'rx_ct').sum())
     .with_columns(mc_diff())
     .with_columns(mc_diff_per_rx())
+    .with_columns((c.mc_diff / c.total).alias('diff_pct'))
     .collect()
     .rename({})
     .to_dict(as_series=False)
