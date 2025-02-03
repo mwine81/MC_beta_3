@@ -183,5 +183,57 @@ def scatter_fig(data):
 
 FIG4 = create_fig('graph4')
 
+def bar_total_pct_savings(data):
+    data = (
+        data
+        .group_by(c.drug_class)
+        .agg(c.total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'), c.rx_ct.sum())
+        .with_columns((c.diff / c.rx_ct).alias('avg_diff'))
+        .filter(c.diff > 0)
+        .with_columns((c.diff / c.diff.sum()).alias('diff_pct'))
+        .sort(by='diff_pct', descending=True)
+        .collect()
+    )
+    fig = px.bar(data,
+                 y='drug_class',
+                 x='diff_pct',
+                 color='drug_class',
+                 orientation='h',
+                 text='diff_pct',
+                 hover_data={
+                     'drug_class': True,
+                     'diff': True,  # Keep other fields unchanged
+                     'total': True,
+                     'rx_ct': True,
+                     'avg_diff': ':$,.2f',  # Format avg_diff as .2f (two decimal places)
+                 },
+                 custom_data=['avg_diff', 'diff', 'total', 'drug_class', 'rx_ct']
+                 )
+    template = (
+        "<b>Drug Class:</b> %{customdata[3]}<br>"
+        "<b>Rx Count:</b> %{customdata[4]:,.0f}<br>"  # Rename 'generic_name
+        "<b>Total Charge Difference:</b> %{customdata[1]:$,.0f}<br>"  # Rename and format 'diff'
+        "<b>Total Charge:</b> %{customdata[2]:$,.0f}<br>"  # Rename and format 'total'
+        "<b>Average Difference Per Rx:</b> %{customdata[0]:$,.2f}<br>"  # Rename and format 'avg_diff'
+        "<extra></extra>"  # Hides the default trace info
+    )
+    max_x = data.select(c.diff_pct.max()).item()
+    fig.update_traces(
+        texttemplate='%{text:.1%}',
+        textposition='outside',
+        hovertemplate=template
+    )
+    fig.update_layout(
+        showlegend=False,
+        xaxis=dict(range=[0, max_x * 1.2]),
+        xaxis_showticklabels=False,
+        plot_bgcolor="white",  # Set plot background color to white
+        paper_bgcolor="white",
+        yaxis_ticksuffix='  ',
+        xaxis_title="<b>MCCPDC % Total Estimated Savings By Drug Class<b>",
+        yaxis_title="",
+    )
+    return fig
 
+FIG5 = create_fig('graph5')
 
