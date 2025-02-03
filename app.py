@@ -52,7 +52,7 @@ def group_select(name,**kwargs):
 
 date_selector = html.Div([
     dbc.Col(
-    html.P('Date Range',className="text-bold mb-0",style={'font-size':'12px'}),width=4
+    html.P('Date Range',className="text-bold mb-0",style={'font-size':'12px'}),width=3
     ),
     dbc.Col(
     dcc.DatePickerRange(
@@ -60,7 +60,7 @@ date_selector = html.Div([
                 min_date_allowed=date(2023, 1, 1),
                 max_date_allowed=date(2024, 12, 31),
                 end_date=date(2024, 12, 31),
-                start_date=date(2023, 1, 1),),width=8
+                start_date=date(2023, 1, 1),),width=9
     )],
     className='hstack gap-1 mb-1')
 
