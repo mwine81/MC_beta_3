@@ -109,7 +109,7 @@ app.layout = html.Div([
         dbc.Row([
             #dbc.Col(FIG2,className='col-6'),
             dbc.Col(FIG5,className='col-5'),
-            dbc.Col(FIG3,className='col-7'),
+            dbc.Col(FIG6,className='col-7'),
         ]),
     ],
     fluid=True),
@@ -290,6 +290,24 @@ def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_
                        drug_class_list=drug_class_list,product_list=product_list, date_start=date_start, date_end=date_end)
 
     fig = dcc.Graph(figure=bar_total_pct_savings(data))
+    return fig
+
+@app.callback(
+    Output('graph6','children'),
+    Input('data-set', 'value'),
+    Input('affiliated-group', 'value'),
+    Input('specialty-group', 'value'),
+    Input('ftc-group', 'value'),
+    Input('drug-class-group', 'value'),
+    Input('product-group', 'value'),
+    Input('date-picker', 'start_date'),
+    Input('date-picker', 'end_date'),
+)
+def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,product_list,date_start,date_end):
+    data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
+                       drug_class_list=drug_class_list,product_list=product_list, date_start=date_start, date_end=date_end)
+
+    fig = dcc.Graph(figure=avg_charge_per_rx(data))
     return fig
 
 

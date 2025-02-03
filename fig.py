@@ -237,3 +237,55 @@ def bar_total_pct_savings(data):
 
 FIG5 = create_fig('graph5')
 
+def avg_charge_per_rx(data):
+    data = (
+        data
+        .group_by(c.drug_class)
+        .agg(c.total.sum(), c.mc_total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'), c.rx_ct.sum())
+        .with_columns((c.diff / c.rx_ct).alias('avg_diff'))
+        .filter(c.diff > 0)
+        .with_columns((c.diff / c.diff.sum()).alias('diff_pct'))
+        .with_columns((c.total / c.rx_ct).alias('avg_charge'), (c.mc_total / c.rx_ct).alias('mc_avg_charge'))
+        .sort(by='diff_pct', descending=True)
+        .collect()
+    )
+    data = data.unpivot(index='drug_class', on=['avg_charge', 'mc_avg_charge']).sort(by=['variable', 'value'])
+    fig = px.bar(data,
+                 y='variable',
+                 x='value',
+                 color='drug_class',
+                 orientation='h',
+                 hover_data={
+                     'drug_class': True,
+                     'value': True,  # Keep other fields unchanged
+                 },
+                 custom_data=['drug_class', 'value']
+                 )
+    template = (
+        "<b>Drug Class:</b> %{customdata[0]}<br>"
+        "<b>Avgerage Rx Price:</b> %{customdata[1]:$,.2f}<br>"  # Rename 'generic_name
+        "<extra></extra>"  # Hides the default trace info
+    )
+    fig.update_traces(
+        hovertemplate=template
+    )
+    y_tick_mapping = {
+        "avg_charge": "Avg Charge   ",
+        "mc_avg_charge": "MCCPDC Charge   ",
+    }
+    fig.update_layout(
+        showlegend=False,
+        # xaxis_showticklabels=False,
+        plot_bgcolor="white",  # Set plot background color to white
+        paper_bgcolor="white",
+        xaxis_title="<b>Avg Charge Per Rx<b>",
+        yaxis_title="",
+        xaxis=dict(tickformat='$.2s'),
+        yaxis=dict(
+            tickvals=list(y_tick_mapping.keys()),  # Original labels (keys of the mapping)
+            ticktext=list(y_tick_mapping.values())  # Mapped custom labels (values from the mapping)
+        )
+    )
+    return fig
+
+FIG6 = create_fig('graph6')
