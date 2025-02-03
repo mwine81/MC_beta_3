@@ -175,8 +175,8 @@ def scatter_fig(data):
         paper_bgcolor="white",  # Set outer paper background color
         xaxis_title="<b>MCCPDC Estimated Savings<b>",
         yaxis_title="<b>Total Charge<b>",
-        legend_title = '<b>Drug Class<b>'
-
+        legend_title = '<b>Drug Class<b>',
+        showlegend=False
     )
     fig.update_traces(hovertemplate=template)
     return fig
