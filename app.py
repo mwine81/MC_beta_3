@@ -60,7 +60,7 @@ date_selector = html.Div([
                 min_date_allowed=date(2023, 1, 1),
                 max_date_allowed=date(2024, 12, 31),
                 end_date=date(2024, 12, 31),
-                start_date=date(2023, 1, 1),),width=8,style={'font-size':'12px'}
+                start_date=date(2023, 1, 1),),width=8
     )],
     className='hstack gap-1 mb-1')
 
