@@ -251,7 +251,7 @@ def update_kpis(data_set_list,affiliated_group,specialty_group,ftc_group, drug_c
         kpi_card('MCCPDC', f'{"${:,.0f}".format(data_dict.get("mc_total")[0])}',MCCPDC_PRIMARY),
         kpi_card('Rx Ct', f'{"{:,}".format(data_dict.get("rx_ct")[0])}',MCCPDC_PRIMARY),
         kpi_card('Estimated Savings', f'{"${:,.0f}".format(data_dict.get("mc_diff")[0])}', MCCPDC_ACCENT),
-        kpi_card('Estimated Savings Per Rx', f'{"${:,.2f}".format(data_dict.get("per_rx")[0])}',MCCPDC_ACCENT),
+        kpi_card('Savings Per Rx', f'{"${:,.2f}".format(data_dict.get("per_rx")[0])}',MCCPDC_ACCENT),
         kpi_card('Savings Percent', f'{"{:,.0%}".format(data_dict.get("diff_pct")[0])}', MCCPDC_ACCENT),
     ]
     return KPIS
