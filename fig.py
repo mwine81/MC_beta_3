@@ -83,44 +83,6 @@ def top_saving_drugs(data,n_drugs,how):
 #FIG 2 CARD
 FIG2 = create_fig('graph2')
 
-#FIG3 Calc
-def fig_monthly_spend(data,nadac_fee=10):
-
-    data = (
-        data
-        .filter(c.nadac.is_not_null())
-        .group_by(pl.date(c.year, c.month, 1).alias('dos'))
-        .agg(cs.contains('total', 'rx_ct', 'nadac', 'mc_total').sum())
-        .with_columns(((c.rx_ct * int(nadac_fee)) + c.nadac).alias('nadac'))
-        .sort(c.dos)
-    )
-    fig = px.line(data.collect(),
-                  x='dos',
-                  y=['total', 'mc_total', 'nadac'],
-                  line_shape='spline',
-                  color_discrete_map={'mc_total':MCCPDC_PRIMARY,'nadac':MCCPDC_SECONDARY,'total':MCCPDC_ACCENT}
-                  )
-    fig.update_layout(
-        plot_bgcolor = 'white',
-        legend=dict(
-        title='',
-        orientation="h",  # Set legend orientation to horizontal
-        x=.1,  # Set the x-position of the legend (centered)
-        xanchor="center",  # Anchor the legend at the center
-        y=1.2,  # Adjust the y-position (above the plot)
-    )
-                      )
-    fig.update_traces(
-        line=dict(width=4),
-        opacity=0.60,
-    )
-    fig.update_xaxes(title='')
-    fig.update_yaxes(title='Spend($)')
-
-    return fig
-
-
-FIG3 = create_fig('graph3')
 
 
 def scatter_fig(data):
@@ -142,11 +104,6 @@ def scatter_fig(data):
         from self""")
         .collect()
     )
-    # avg_diff_min = data.select(c.avg_diff.min()).item()
-    # avg_diff_max = data.select(c.avg_diff.max()).item()
-    # data = data.with_columns(
-    #     ((c.avg_diff - avg_diff_min) / (avg_diff_max - avg_diff_min) * 100).alias('size_normalized')
-    # )
 
 
     fig = px.scatter(data, y='total', x='diff', size='size_normalized', color='drug_class', log_x=True, log_y=True,
@@ -155,8 +112,8 @@ def scatter_fig(data):
                          'avg_diff': ':$,.2f',  # Format avg_diff as .2f (two decimal places)
                          'diff': True,  # Keep other fields unchanged
                          'total': True},
-                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class','rx_ct']
-
+                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class','rx_ct'],
+                     height=400,
                      )
     template = (
         "<b>Drug Name:</b> %{customdata[3]}<br>"

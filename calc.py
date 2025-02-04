@@ -41,3 +41,6 @@ def dict_for_kpis(data: pl.LazyFrame) -> dict:
     .rename({})
     .to_dict(as_series=False)
     )
+
+if __name__ == '__main__':
+    pass
