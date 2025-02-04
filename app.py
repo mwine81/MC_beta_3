@@ -43,37 +43,39 @@ footer = html.Footer(
 def group_select(name,**kwargs):
     return html.Div([
         dbc.Col(
-            html.P(f'{name}',className="mb-0"),style=({'font-size':'12px'}),width=4
+            html.P(f'{name}',className="mb-0"),style=({'font-size':'16px'}),width=4
         ),
         dbc.Col(
-    dcc.Dropdown(**kwargs,style={'font-size':'12px'}),width=8
+    dcc.Dropdown(**kwargs,style={'font-size':'14px'}),width=8
         )
     ],className='hstack gap-1 mb-1')
 
 date_selector = html.Div([
-    dbc.Col(
-    html.P('Date Range',className="text-bold mb-0",style={'font-size':'12px'}),width=3
-    ),
-    dbc.Col(
+    html.P('Date Range',className="text-bold mb-2 text-center",style={'font-size':'16px'}),
     dcc.DatePickerRange(
                 id='date-picker',
                 min_date_allowed=date(2023, 1, 1),
                 max_date_allowed=date(2024, 12, 31),
                 end_date=date(2024, 12, 31),
-                start_date=date(2023, 1, 1),),width=9
-    )],
-    className='hstack gap-1 mb-1')
+                start_date=date(2023, 1, 1),
+        style={
+        'display': 'flex',
+        'justify-content': 'center',
+        'align-items': 'center',
+    }
+    )],className='mb-2')
+
 
 
 #controls
 controls = dbc.Card(
     dbc.CardBody([
-        html.H4('Controls',className="text-center"),
+        html.H4('Controls',className="text-center",style={'color':MCCPDC_PRIMARY}),
         dbc.Row([
             date_selector,
             group_select('Date Sets', options=get_files(), multi=True, id='data-set'),
             group_select('Drug Class', id='drug-class-group', multi=True),
-
+            group_select('Drug Name', id='drug-group', multi=True),
             group_select('Affiliated', options={'All': 'All', True: 'Affiliated', False: 'Non-Affiliated'},
                          value='All', id='affiliated-group', clearable=False),
             group_select('Specialty', options={'All': 'All', True: 'Specialty', False: 'Non-Specialty'}, value='All',
@@ -94,11 +96,11 @@ app.layout = html.Div([
         ),
         dbc.Row([
             html.Div(controls,className='col-4'),
-            html.Div(FIG4,className='col-8')
+            html.Div(create_fig_card('scatter','Total Charge Vs. MCCPDC Estimated Savings'),className='col-8')
         ],align='center'),
         dbc.Row([
-            dbc.Col(FIG5,className='col-5'),
-            dbc.Col(FIG6,className='col-7'),
+            dbc.Col(create_fig_card('fig-savings-drug_class','Percent Savings by Drug Class'),className='col-5'),
+            dbc.Col(create_fig_card('fig-avg-charge','Average Charge Per Rx by Drug Class'),className='col-7'),
         ]),
     ],
     fluid=True),
@@ -108,7 +110,7 @@ app.layout = html.Div([
 ALL_VALUE = 'All'  # Introduced constant for reused string
 
 def filter_data(data_set_list, affiliated_group, specialty_group,ftc_group, date_start=None, date_end=None,
-                drug_class_list=None):
+                drug_class_list=None,drug_name_list=None):
     data = load_files(data_set_list)
     if date_start and date_end:
         start, end = [int(x) for x in date_start.split('-')], [int(x) for x in date_end.split('-')]
@@ -121,6 +123,8 @@ def filter_data(data_set_list, affiliated_group, specialty_group,ftc_group, date
         data = data.filter(c.drug_class.is_in(drug_class_list))
     if ftc_group != ALL_VALUE:
         data = data.filter(c.is_ftc == ftc_group)
+    if drug_name_list:
+        data = data.filter(c.generic_name.is_in(drug_name_list))
     return data
 
 @app.callback(
@@ -131,10 +135,26 @@ def filter_data(data_set_list, affiliated_group, specialty_group,ftc_group, date
     Input('ftc-group', 'value'),
     Input('date-picker', 'start_date'),
     Input('date-picker', 'end_date'),
+    Input('drug-group', 'value'),
 )
-def update_control_group_options(data_set_list, affiliated_group, specialty_group,ftc_group,date_start, date_end):
-    data = filter_data(data_set_list = data_set_list,affiliated_group= affiliated_group,specialty_group= specialty_group,ftc_group=ftc_group, date_start=date_start, date_end=date_end)
+def update_control_group_options(data_set_list, affiliated_group, specialty_group,ftc_group,date_start, date_end,drug_name):
+    data = filter_data(data_set_list = data_set_list,affiliated_group= affiliated_group,specialty_group= specialty_group,ftc_group=ftc_group, date_start=date_start, date_end=date_end,drug_name_list=drug_name)
     drug_group_options = data.select(c.drug_class).unique().sort(c.drug_class).collect().to_series().to_list()
+    return drug_group_options
+
+@app.callback(
+    Output('drug-group', 'options'),
+    Input('data-set', 'value'),
+    Input('affiliated-group', 'value'),
+    Input('specialty-group', 'value'),
+    Input('ftc-group', 'value'),
+    Input('drug-class-group', 'value'),
+    Input('date-picker', 'start_date'),
+    Input('date-picker', 'end_date'),
+)
+def update_generic_group_options(data_set_list, affiliated_group, specialty_group,ftc_group,drug_class_list,date_start, date_end):
+    data = filter_data(data_set_list = data_set_list,affiliated_group= affiliated_group,specialty_group= specialty_group,ftc_group=ftc_group,drug_class_list=drug_class_list, date_start=date_start, date_end=date_end)
+    drug_group_options = data.select(c.generic_name).unique().sort(c.generic_name).collect().to_series().to_list()
     return drug_group_options
 
 @app.callback(
@@ -144,13 +164,13 @@ def update_control_group_options(data_set_list, affiliated_group, specialty_grou
     Input('specialty-group', 'value'),
     Input('ftc-group', 'value'),
     Input('drug-class-group', 'value'),
-
     Input('date-picker', 'start_date'),
     Input('date-picker', 'end_date'),
+    Input('drug-group', 'value'),
 )
-def update_kpis(data_set_list,affiliated_group,specialty_group,ftc_group, drug_class_list,date_start,date_end):
+def update_kpis(data_set_list,affiliated_group,specialty_group,ftc_group, drug_class_list,date_start,date_end,drug_name):
     data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
-                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end)
+                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end,drug_name_list=drug_name)
     data_dict = dict_for_kpis(data)
     KPIS = [
         kpi_card('Total', f'{"${:,.0f}".format(data_dict["total"][0])}',MCCPDC_PRIMARY),
@@ -163,59 +183,93 @@ def update_kpis(data_set_list,affiliated_group,specialty_group,ftc_group, drug_c
     return KPIS
 
 @app.callback(
-    Output('graph4','children'),
+    Output('scatter','figure'),
     Input('data-set', 'value'),
     Input('affiliated-group', 'value'),
     Input('specialty-group', 'value'),
     Input('ftc-group', 'value'),
     Input('drug-class-group', 'value'),
-
     Input('date-picker', 'start_date'),
     Input('date-picker', 'end_date'),
+    Input('drug-group', 'value'),
 )
-def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,date_start,date_end):
+def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,date_start,date_end,drug_name):
     data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
-                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end)
+                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end, drug_name_list=drug_name)
 
-    fig = dcc.Graph(figure=scatter_fig(data))
+    fig = scatter_fig(data)
     return fig
 
 @app.callback(
-    Output('graph5','children'),
+    Output('fig-savings-drug_class','figure'),
     Input('data-set', 'value'),
     Input('affiliated-group', 'value'),
     Input('specialty-group', 'value'),
     Input('ftc-group', 'value'),
     Input('drug-class-group', 'value'),
-
     Input('date-picker', 'start_date'),
     Input('date-picker', 'end_date'),
+    Input('drug-group', 'value'),
 )
-def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,date_start,date_end):
+def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,date_start,date_end, drug_name):
     data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
-                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end)
+                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end,drug_name_list=drug_name)
 
-    fig = dcc.Graph(figure=bar_total_pct_savings(data))
+    fig = bar_total_pct_savings(data)
     return fig
 
 @app.callback(
-    Output('graph6','children'),
+    Output('fig-avg-charge','figure'),
     Input('data-set', 'value'),
     Input('affiliated-group', 'value'),
     Input('specialty-group', 'value'),
     Input('ftc-group', 'value'),
     Input('drug-class-group', 'value'),
-
     Input('date-picker', 'start_date'),
     Input('date-picker', 'end_date'),
+    Input('drug-group', 'value'),
 )
-def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,date_start,date_end):
+def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_class_list,date_start,date_end,drug_name):
     data = filter_data(data_set_list=data_set_list, affiliated_group=affiliated_group, specialty_group=specialty_group,ftc_group=ftc_group,
-                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end)
-
-    fig = dcc.Graph(figure=avg_charge_per_rx(data))
+                       drug_class_list=drug_class_list,date_start=date_start, date_end=date_end, drug_name_list=drug_name)
+    fig = avg_charge_per_rx(data)
     return fig
+#
+@app.callback(
+    Output('drug-group','value'),
+    Input('scatter','clickData'),
+    Input('drug-group','value'),
+    prevent_initial_call=True,
+)
+def update_filter(click_data, drug_group):
+    drug = (click_data.get('points')[0].get('customdata')[3])
+    if not drug_group:
+        return [drug]
+    return None
 
+@app.callback(
+    Output('drug-class-group','value'),
+    Input('fig-avg-charge','clickData'),
+    Input('drug-class-group','value'),
+    prevent_initial_call=True,
+)
+def update_filter(click_data, drug_group):
+    drug = (click_data.get('points')[0].get('customdata')[0])
+    if not drug_group:
+        return [drug]
+    return None
+
+# @app.callback(
+#     Output('drug-class-group','value',allow_duplicate=True),
+#     Input('fig-savings-drug_class','clickData'),
+#     Input('drug-class-group','value'),
+#     prevent_initial_call=True,
+# )
+# def update_filter(click_data, drug_group):
+#     drug = (click_data.get('points')[0].get('customdata')[3])
+#     if not drug_group:
+#         return [drug]
+#     return None
 
 if __name__ == '__main__':
     app.run_server(debug=True)

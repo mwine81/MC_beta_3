@@ -6,82 +6,14 @@ from polars import col as c
 import plotly.express as px
 import polars.selectors as cs
 
-
-#FIG1 PLOT
-def fig_drug_group_fig(data,how):
-    data = (
-        data
-        .group_by('drug_class')
-        .agg(c.total.sum(),c.mc_total.sum(),c.rx_ct.sum())
-        .with_columns((c.total - c.mc_total).alias('diff'))
-        .with_columns((c.diff / c.rx_ct).alias('per_rx'))
-        .with_columns(c.drug_class.replace(GROUP_DICT))
-        .collect()
-    )
-    fig = px.pie(
-        data,
-        values=how,
-        names="drug_class",
-        hole=.7,
-    )
-    return fig
-
-def create_fig(id):
+def create_fig_card(id,title):
     return dbc.Card(
         dbc.CardBody([
-            html.H4('Title',className="fw-bold text-center"),
-            html.Div(id=id),
+            html.H4(title,className="fw-bold text-center", style={'color':MCCPDC_PRIMARY}),
+            dcc.Graph(id=id),
             ]
         ),className='rounded-4 shadow-lg border-0 mb-5'
     )
-
-FIG1 = create_fig('graph1')
-
-#FIG2 Plot
-def top_saving_drugs(data,n_drugs,how):
-    #rk = TOP_SAVINGS_DICT.get(rank_by)
-    #sort_col = 'per_rx' if rk == 'per_rx' else 'diff'
-    data = (
-        data
-        .group_by(c.generic_name)
-        .agg(c.total.sum(), c.mc_total.sum(),c.rx_ct.sum())
-        .with_columns((c.total - c.mc_total).alias('diff'))
-        .with_columns((c.diff / c.rx_ct).alias('per_rx'))
-        .sort(how, descending=True)
-        .head(int(n_drugs))
-        .sort(by=how)
-        .collect()
-    )
-
-    fig = px.bar(
-        data,
-        y="generic_name",
-        x=how,
-        #title=f"MCCPDC Savings - Top 10 Drugs by Total Savings($)",
-        orientation="h",
-        barmode="group",
-        #text_auto=True,
-        text=data[how],
-        color_discrete_sequence=[MCCPDC_PRIMARY],
-    )
-    fig.update_traces(texttemplate="%{text:$,.0f}",)
-    fig.update_layout(
-        showlegend=False,
-        height=50*int(n_drugs),
-    )
-    fig.update_xaxes(
-        # tickformat="$,.0f",
-        showticklabels=False,
-        title = '',
-    )
-    fig.update_yaxes(
-        title = '',
-        ticksuffix='    '
-    )
-    return fig
-
-#FIG 2 CARD
-FIG2 = create_fig('graph2')
 
 
 
@@ -114,6 +46,7 @@ def scatter_fig(data):
                          'total': True},
                      custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class','rx_ct'],
                      height=400,
+                     color_discrete_map=COLOR_MAPPING
                      )
     template = (
         "<b>Drug Name:</b> %{customdata[3]}<br>"
@@ -138,7 +71,6 @@ def scatter_fig(data):
     fig.update_traces(hovertemplate=template)
     return fig
 
-FIG4 = create_fig('graph4')
 
 def bar_total_pct_savings(data):
     data = (
@@ -166,6 +98,7 @@ def bar_total_pct_savings(data):
                  },
                  custom_data=['avg_diff', 'diff', 'total', 'drug_class', 'rx_ct'],
                  height=400,
+                 color_discrete_map=COLOR_MAPPING
                  )
     template = (
         "<b>Drug Class:</b> %{customdata[3]}<br>"
@@ -188,12 +121,11 @@ def bar_total_pct_savings(data):
         plot_bgcolor="white",  # Set plot background color to white
         paper_bgcolor="white",
         yaxis_ticksuffix='  ',
-        xaxis_title="<b>MCCPDC % Total Estimated Savings By Drug Class<b>",
+        xaxis_title="",
         yaxis_title="",
     )
     return fig
 
-FIG5 = create_fig('graph5')
 
 def avg_charge_per_rx(data):
     data = (
@@ -219,6 +151,8 @@ def avg_charge_per_rx(data):
                  },
                  custom_data=['drug_class', 'value'],
                  height=400,
+                 color_discrete_map=COLOR_MAPPING,
+                 text_auto=True
                  )
     template = (
         "<b>Drug Class:</b> %{customdata[0]}<br>"
@@ -246,5 +180,3 @@ def avg_charge_per_rx(data):
         )
     )
     return fig
-
-FIG6 = create_fig('graph6')

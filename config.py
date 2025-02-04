@@ -1,4 +1,5 @@
 from pathlib import Path
+import plotly.express as px
 
 MCCPDC_PRIMARY = '#12366c'
 MCCPDC_SECONDARY = '#dcf2f9'
@@ -24,3 +25,8 @@ GROUP_DICT ={
 }
 
 DATA_DIR = Path("data")
+
+COLOR_MAPPING = {k:v for k,v in zip(GROUP_DICT.values(),px.colors.qualitative.Light24_r[:len(GROUP_DICT.values())])}
+
+
+

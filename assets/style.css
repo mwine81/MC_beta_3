@@ -10,6 +10,12 @@
     font-weight: 400
 }
 
+.center-item{
+    'display': 'flex',
+    'justify-content': 'center',
+    'align-items': 'center',
+}
+
 .control-container{
     display: flex;
     align-items: center;
