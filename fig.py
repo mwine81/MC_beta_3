@@ -15,8 +15,6 @@ def create_fig_card(id,title):
         ),className='rounded-4 shadow-lg border-0 mb-5'
     )
 
-
-
 def scatter_fig(data):
     data = (
         data
@@ -66,7 +64,8 @@ def scatter_fig(data):
         xaxis_title="<b>MCCPDC Estimated Savings<b>",
         yaxis_title="<b>Total Charge<b>",
         legend_title = '<b>Drug Class<b>',
-        showlegend=False
+        showlegend=False,
+        title = None
     )
     fig.update_traces(hovertemplate=template)
     return fig

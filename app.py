@@ -96,12 +96,12 @@ app.layout = html.Div([
             dbc.Col(dbc.Row(id='kpi-row',className="mt-4"))
         ),
         dbc.Row([
-            html.Div(controls,className='col-4'),
-            html.Div(create_fig_card('scatter','Total PBM Charge to Employers vs. MCCPDC Estimated Savings'),className='col-8')
+            html.Div(controls,className='col-lg-4'),
+            html.Div(create_fig_card('scatter','Total PBM Charge to Employers vs. MCCPDC Estimated Savings'),className='col-lg-8')
         ],align='center'),
         dbc.Row([
-            dbc.Col(create_fig_card('fig-savings-drug_class','MCCPDC % Savings vs PBMs by Drug Class'),className='col-5'),
-            dbc.Col(create_fig_card('fig-avg-charge','Average Charge Per Rx by Drug Class'),className='col-7'),
+            dbc.Col(create_fig_card('fig-savings-drug_class','MCCPDC % Savings vs PBMs by Drug Class'),className='col-lg-5'),
+            dbc.Col(create_fig_card('fig-avg-charge','Average Charge Per Rx by Drug Class'),className='col-lg-7'),
         ]),
     ],
     fluid=True),
