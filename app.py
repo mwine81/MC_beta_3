@@ -27,7 +27,7 @@ navi = html.Div(
             html.A(
                 html.Img(src=app.get_asset_url
                 ('img.png'),alt='logo',className='ps-3')
-                ,href='index.html',className='navbar-brand'),
+                ,href='https://www.costplusdrugs.com/',className='navbar-brand', target='_blank'),
             ]
             )
         ,className="navbar", style={'background-color': MCCPDC_SECONDARY}
@@ -37,8 +37,9 @@ footer = html.Footer(
             html.A(
                 html.Img(src=app.get_asset_url
                 ('img_1.png'),alt='logo', height='100px')
-                ,href='index.html',className='px-4'),
+                ,href='https://www.3axisadvisors.com/',target='_blank',className='px-4'),
            className='mb-4')
+
 
 def group_select(name,**kwargs):
     return html.Div([
@@ -73,14 +74,14 @@ controls = dbc.Card(
         html.H4('Controls',className="text-center",style={'color':MCCPDC_PRIMARY}),
         dbc.Row([
             date_selector,
-            group_select('Date Sets', options=get_files(), multi=True, id='data-set'),
+            group_select('PBM Data Sets', options=get_files(), multi=True, id='data-set'),
             group_select('Drug Class', id='drug-class-group', multi=True),
             group_select('Drug Name', id='drug-group', multi=True),
-            group_select('Affiliated', options={'All': 'All', True: 'Affiliated', False: 'Non-Affiliated'},
+            group_select('Pharmacy Type', options={'All': 'All', True: 'PBM-Affiliated Pharmacies', False: 'Non-Affiliated Pharmacies'},
                          value='All', id='affiliated-group', clearable=False),
             group_select('Specialty', options={'All': 'All', True: 'Specialty', False: 'Non-Specialty'}, value='All',
                          id='specialty-group', clearable=False),
-            group_select('FTC Generic', options={'All': 'All', True: 'FTC', False: 'Non-FTC'}, id='ftc-group',
+            group_select('FTC PBM Report Drugs', options={'All': 'All', True: 'FTC', False: 'Non-FTC'}, id='ftc-group',
                          value='All',
                          clearable=False),
         ]),
@@ -96,10 +97,10 @@ app.layout = html.Div([
         ),
         dbc.Row([
             html.Div(controls,className='col-4'),
-            html.Div(create_fig_card('scatter','Total Charge Vs. MCCPDC Estimated Savings'),className='col-8')
+            html.Div(create_fig_card('scatter','Total PBM Charge to Employers vs. MCCPDC Estimated Savings'),className='col-8')
         ],align='center'),
         dbc.Row([
-            dbc.Col(create_fig_card('fig-savings-drug_class','Percent Savings by Drug Class'),className='col-5'),
+            dbc.Col(create_fig_card('fig-savings-drug_class','MCCPDC Percent Savings vs PBMs by Drug Class'),className='col-5'),
             dbc.Col(create_fig_card('fig-avg-charge','Average Charge Per Rx by Drug Class'),className='col-7'),
         ]),
     ],
@@ -235,29 +236,29 @@ def update_graph1(data_set_list,affiliated_group,specialty_group,ftc_group,drug_
     fig = avg_charge_per_rx(data)
     return fig
 #
-@app.callback(
-    Output('drug-group','value'),
-    Input('scatter','clickData'),
-    Input('drug-group','value'),
-    prevent_initial_call=True,
-)
-def update_filter(click_data, drug_group):
-    drug = (click_data.get('points')[0].get('customdata')[3])
-    if not drug_group:
-        return [drug]
-    return None
-
-@app.callback(
-    Output('drug-class-group','value'),
-    Input('fig-avg-charge','clickData'),
-    Input('drug-class-group','value'),
-    prevent_initial_call=True,
-)
-def update_filter(click_data, drug_group):
-    drug = (click_data.get('points')[0].get('customdata')[0])
-    if not drug_group:
-        return [drug]
-    return None
+# @app.callback(
+#     Output('drug-group','value'),
+#     Input('scatter','clickData'),
+#     Input('drug-group','value'),
+#     prevent_initial_call=True,
+# )
+# def update_filter(click_data, drug_group):
+#     drug = (click_data.get('points')[0].get('customdata')[3])
+#     if not drug_group:
+#         return [drug]
+#     return None
+#
+# @app.callback(
+#     Output('drug-class-group','value'),
+#     Input('fig-avg-charge','clickData'),
+#     Input('drug-class-group','value'),
+#     prevent_initial_call=True,
+# )
+# def update_filter(click_data, drug_group):
+#     drug = (click_data.get('points')[0].get('customdata')[0])
+#     if not drug_group:
+#         return [drug]
+#     return None
 
 # @app.callback(
 #     Output('drug-class-group','value',allow_duplicate=True),
