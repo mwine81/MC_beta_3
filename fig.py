@@ -19,7 +19,7 @@ def scatter_fig(data):
     data = (
         data
         .group_by(c.generic_name, c.drug_class)
-        .agg(c.total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'),c.rx_ct.sum())
+        .agg(c.total.sum(), (c.total.sum() - c.mc_total.sum()).alias('diff'),c.rx_ct.sum(),c.mc_total.sum())
         .with_columns((c.diff / c.rx_ct).alias('avg_diff'))
         .filter(c.diff > 0)
         .filter(c.avg_diff > 0)
@@ -42,7 +42,7 @@ def scatter_fig(data):
                          'avg_diff': ':$,.2f',  # Format avg_diff as .2f (two decimal places)
                          'diff': True,  # Keep other fields unchanged
                          'total': True},
-                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class','rx_ct'],
+                     custom_data=['avg_diff', 'diff', 'total', 'generic_name', 'drug_class','rx_ct','mc_total'],
                      height=400,
                      color_discrete_map=COLOR_MAPPING
                      )
@@ -50,9 +50,10 @@ def scatter_fig(data):
         "<b>Drug Name:</b> %{customdata[3]}<br>"
         "<b>Drug Class:</b> %{customdata[4]}<br>"
         "<b>Rx Count:</b> %{customdata[5]:,.0f}<br>"# Rename 'generic_name'
-        "<b>Average Difference Per Rx:</b> %{customdata[0]:$,.2f}<br>"  # Rename and format 'avg_diff'
-        "<b>Total Charge Difference:</b> %{customdata[1]:$,.0f}<br>"  # Rename and format 'diff'
         "<b>Total Charge:</b> %{customdata[2]:$,.0f}<br>"  # Rename and format 'total'
+        "<b>MCCPDC Total Charge:</b> %{customdata[6]:$,.0f}<br>"  # Rename and format 'total'
+        "<b>Total Charge Difference:</b> %{customdata[1]:$,.0f}<br>"  # Rename and format 'diff'
+        "<b>Average Difference Per Rx:</b> %{customdata[0]:$,.2f}<br>"  # Rename and format 'avg_diff'
         "<extra></extra>"  # Hides the default trace info
     )
 
